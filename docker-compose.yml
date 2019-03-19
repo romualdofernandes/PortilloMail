@@ -1,0 +1,25 @@
+version: '2'
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=portillo
+      - MYSQL_DATABASE=portillo
+      - MYSQL_USER=portillo
+      - MYSQL_PASSWORD=portillo
+    volumes:
+      - portillo-mysql-data:/var/lib/mysql
+  portillo:
+    build: .
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_ROOT_PASSWORD=portillo
+      - MYSQL_DATABASE=portillo
+      - MYSQL_USER=portillo
+      - MYSQL_PASSWORD=portillo
+    depends_on:
+      - mysql
+    ports:
+      - 8002:80
+volumes:
+  portillo-mysql-data: {}
