@@ -63,7 +63,7 @@ if(isset($_REQUEST["url"])){
 						$uri = str_replace("/instalador/passo2.php","",$uri);
 						$uri = ltrim($uri, '/');
 					?>
-					<input type="text" name="pasta" placeholder="mailing" autocomplete="off" value="<?php echo $uri; ?>" required/>
+					<input type="text" name="pasta" placeholder="mailing" autocomplete="off" value="<?php echo $uri; ?>"/>
 				</div>
 				<div>
 					<p class="mini-info">Digite o nome da Empresa ou Instituição que usará o PortilloMail</p>

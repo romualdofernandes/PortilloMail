@@ -30,16 +30,16 @@
 		$horarioComercial_ini = 0;
 		$horarioComercial_fin = 0;
 
-		$host	= "localhost"; // IP do Banco
-		$user 	= ""; // Usuário
-		$pswd 	= ""; // Senha
-		$dbname	= ""; // Banco
+		$host	= $_ENV["MYSQL_HOST"]; // IP do Banco
+		$user 	= $_ENV["MYSQL_USER"]; // Usuário
+		$pswd 	= $_ENV["MYSQL_PASSWORD"]; // Senha
+		$dbname	= $_ENV["MYSQL_DATABASE"]; // Banco
 		$con 	= null; // Conexão
 
 
 		$con = mysqli_connect($host, $user, $pswd);
 		if (!$con) {
-			die("Não foi possível conectar: " . mysqli_error());
+			die("Não foi possível conectar no host '". $host. "' : " . mysqli_error());
 		}
 		mysqli_select_db($con, $dbname);
 		mysqli_set_charset($con, "utf-8"); //Corrigir UTF8
