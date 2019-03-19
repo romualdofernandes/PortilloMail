@@ -70,7 +70,7 @@
 
 			<center>
 
-				<a href="http://portillodesign.com.br/projestos/portillo-mail.html" title="Link para o Projeto Portillo Mail" target="_blank"><img src="<?php echo $caminhoURL; ?>assets/simbolo.png"/></a>
+				<a href="#" title="Link para o Projeto Portillo Mail" target="_blank"><img src="<?php echo $caminhoURL; ?>assets/simbolo.png"/></a>
 
 				<h1><?php echo $nomeEmpresa; ?></h1>
 
