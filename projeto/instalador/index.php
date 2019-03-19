@@ -1,55 +1,113 @@
-﻿<!DOCTYPE html>
-<html lang="pt_br">
-	<head>
-	    <meta charset="utf-8"> 
-		<link rel="stylesheet" href="../css/estilo.css">
-        <title>Instalador PortilloMail</title>
-        <meta name="description" content="Gerenciador de Mailmarketing">
-        <link rel="publisher" href="https://plus.google.com/112684470634109423906"/>
-        <link rel="author" href="https://www.facebook.com/profile.php?id=100008652127063"/>
-        <meta name="robots" content="no-index" />
-        <link rel="icon" type="image/png" href="../assets/simbolo.png" />
-	</head>
-	<body>
-		<div class="login instalador">
-			<center>
-				<img src="../assets/logo_maior.png"/>
-			</center>
-			<h1>Bem Vindo ao Instalador</h1>
-			<h2>Para prosseguir, preencha os dados do Banco.</h2>
-			<form action="criar_config.php" method="post">
-				<!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
-				<input style="display:none" type="text" name="fakeusernameremembered"/>
-				<input style="display:none" type="password" name="fakepasswordremembered"/>
-				
-				<div>
-					<p class="mini-info">Na maioria das vezes, o endereço é, simplesmente, <em>localhost</em>. Em caso de dúvida, consulte a hospedagem</p>
-					<input type="text" name="host" placeholder="Endereço do Banco" autocomplete="off" required/>
-				</div>
-				<div>
-					<p class="mini-info">Preencha com o nome do Banco de Dados criado para este </p>
-					<input type="text" name="dbname" placeholder="Nome do Banco" autocomplete="off" required/>
-				</div>
-				<div>
-					<p class="mini-info">Login do Usuário com acesso ao Banco de Dados</p>
-					<input type="text" name="user" placeholder="Usuário do Banco" autocomplete="off" required/>
-				</div>
-				<div>
-					<p class="mini-info">Senha do Usuário com acesso ao Banco de Dados</p>
-					<input type="password" name="pswd" placeholder="Senha do Usuário" autocomplete="off" required/>
-				</div>
-				
-				<button type="submit">Próximo Passo</button>
-			</form>
-			<div class="info">
-				Para funcionamento correto do do PortilloMail, recomendamos que use, pelo menos, PHP 5.4 ou superior e é necessário que use um banco MySQL.<br/>
-				Caso você tenha dificuldades, consulte sua hospedagem para saber como criar um novo banco de dados, usuário e senha.
-			</div>
-		</div>
-		
-		<div class="powered" style="position: fixed;right: 5px;bottom: 5px;text-align: right;color:lightgrey; font-size:16px;">
-		<em>Powered By</em><a href="http://portillodesign.com.br" title="PortilloDesign" itemprop="url" target="_blank"><img style="height: 32px;
-			margin-bottom:-10px;width: auto;border-radius:5px;margin-left:5px;margin-right:5px" itemprop="logo" class="logo" src="http://portillodesign.com.br/images/logo/apple-icon-114x114.png" alt="Logo da PortilloDesign" title="PortilloDesign"></a><span itemprop="name">0.9</span>
-		</div>
-	</body>
-</html>
+﻿<?php
+ini_set('display_errors', 0); 
+
+$host	= $_ENV["MYSQL_HOST"]; // IP do Banco
+$user 	= $_ENV["MYSQL_USER"]; // Usuário
+$pswd 	= $_ENV["MYSQL_PASSWORD"]; // Senha
+$dbname	= $_ENV["MYSQL_DATABASE"]; // Banco
+$con 	= null; // Conexão
+
+//Testar conexão
+$con 	= null; // Conexão
+$con = mysqli_connect($host, $user, $pswd);
+if (!$con) {
+	echo "<div style='background-color: #FFFF99;border: 2px solid #EFAD40;color: #5C5013;text-align: center;padding: .5em 1em;box-sizing: border-box;border-radius: 10px;margin: 0 auto; margin-top:10px;max-width:800px; width:80%;'>Não foi possível conectar. Por favor, verifique as configuraçoes para conexão ao Banco de Dados.</div>";
+	include_once("index.php");
+}
+else{
+	$fp = fopen('../libs/config.php','w');
+	fwrite($fp, '<?php
+
+		/*****************************
+			PortilloMail
+			Projeto Iniciado por Rodrigo Portillo em 2015
+			Projeto colocado sob Licença Mozilla
+			@author Rodrigo Portillo
+			@url http://portillodesign.com.br/projetos/portillo-mail.html
+		******************************/
+
+		//Dados globais para configuração do sistema de emails.
+		$currentURL = "";
+		$pastaURL = "";
+		$caminhoURL = "";
+		$nomeEmpresa = "";
+
+		//Caso use SMTP, coloque como true, caso contrário, usará a função mail nativa. O SMTP é provido pelo projeto PHPMAiler: https://github.com/PHPMailer/PHPMailer
+		$usarSMTP = true;
+		$charset = "UTF-8";
+		$smtp = "";
+		$porta = "";
+		$seguranca = "";
+		$autenticacao = true;
+
+		$emailResposta = "";
+		$nomeEmailResposta = "";
+
+		$emailsHora = 0; //Valor aproximado, pois o resultado final vai ser convertido 
+		$emailsHoraNaoComercial = 0;
+		$horarioComercial_ini = 0;
+		$horarioComercial_fin = 0;
+
+		$host	= "'.$host.'"; // IP do Banco
+		$user 	= "'.$user.'"; // Usuário
+		$pswd 	= "'.$pswd.'"; // Senha
+		$dbname	= "'.$dbname.'"; // Banco
+		$con 	= null; // Conexão
+
+
+		$con = mysqli_connect($host, $user, $pswd);
+		if (!$con) {
+			die("Não foi possível conectar: " . mysqli_error());
+		}
+		mysqli_select_db($con, $dbname);
+		mysqli_set_charset($con, "utf-8"); //Corrigir UTF8
+
+		//Preencher Configurações Globais
+		$SQLConfig = "SELECT * from config;";   //Variável que armazena strings para extrair os dados da tabela.
+		$rsConfig = mysqli_query($con,$SQLConfig);        //$rs = returnset. Retorno
+		while($rConfig = mysqli_fetch_array($rsConfig)){
+			//Dados globais para configuração do sistema de emails.
+			$currentURL = $rConfig["url"];
+			$pastaURL = "/".$rConfig["pasta"]."/";
+			$caminhoURL = $currentURL . $pastaURL;
+			$nomeEmpresa = $rConfig["nome_empresa"];
+
+			//Caso use SMTP, coloque como true, caso contrário, usará a função mail nativa. O SMTP é provido pelo projeto PHPMAiler: https://github.com/PHPMailer/PHPMailer
+			$smtp = $rConfig["smtp"];
+			$porta = $rConfig["porta"];
+			$seguranca = $rConfig["seguranca"];
+			$autenticacao = $rConfig["autenticacao"];
+
+			$emailResposta = $rConfig["email_resposta"];
+			$nomeEmailResposta = $rConfig["nome_email_resposta"];
+
+			$emailsHora = $rConfig["emails_por_hora"]; //Valor aproximado, pois o resultado final vai ser convertido 
+			$emailsHoraNaoComercial = $rConfig["emails_por_hora_nao_comercial"];
+			$horarioComercial_ini = $rConfig["horario_comercial_ini"];
+			$horarioComercial_fin = $rConfig["horario_comercial_fin"];
+		}
+	?>');
+	fclose($fp);
+
+	$templine = '';
+	
+	$lines = file("modelo_banco.sql");
+	
+	mysqli_select_db($con, $dbname);
+	mysqli_set_charset($con, "utf-8"); //Corrigir UTF8
+	foreach ($lines as $line)
+	{
+		if (substr($line, 0, 2) == '--' || $line == '')
+			continue;
+
+		$templine .= $line;
+
+		if (substr(trim($line), -1, 1) == ';')
+		{
+			$rs = mysqli_query($con,$templine);
+			$templine = '';
+		}
+	}
+	echo('<META http-equiv="refresh" content="1;URL=passo2.php">');
+}
+?>
