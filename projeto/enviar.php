@@ -27,6 +27,8 @@
 		}
 	}
 
+	define('DEST_DIR', __DIR__ . '/anexos'); //Diretorio dos anexos
+
     $imediato = false;
 
 	$assunto;
@@ -71,7 +73,7 @@
 		// os campos (men.id, men.assunto, men.etc...), onde men é a referência da tabela, ou seja, eu quero esses itens DESSA tabela men
 		// A PARTIR DA TABELA mensagens men (men é a referência)
 		// ONDE o campo id for igual ao id que estou passando no PHP
-		$sql = "SELECT men.id as id,men.assunto as assunto,men.mensagem as mensagem,men.url as url,(SELECT email FROM usuarios WHERE id=men.email_envio) as email_envio,(SELECT nome FROM usuarios WHERE id=men.email_envio) as nome_envio,(SELECT nome FROM usuarios WHERE id=men.email_envio) as nome,(SELECT senha_email FROM usuarios WHERE id=men.email_envio) as senha_email, grupos, emails_adicionais FROM mensagens men WHERE id='$id'";
+		$sql = "SELECT men.anexo as anexo, men.id as id,men.assunto as assunto,men.mensagem as mensagem,men.url as url,(SELECT email FROM usuarios WHERE id=men.email_envio) as email_envio,(SELECT nome FROM usuarios WHERE id=men.email_envio) as nome_envio,(SELECT nome FROM usuarios WHERE id=men.email_envio) as nome,(SELECT senha_email FROM usuarios WHERE id=men.email_envio) as senha_email, grupos, emails_adicionais FROM mensagens men WHERE id='$id'";
 		//Como eu não lembrava o nome do campo, fui lá no PHPMYADMIN e olhei qual era o nome do campo dos emails complementares, no caso é o campo emails_complementares, então adicionei no final do select, antes do FROM
 
         $rs = mysqli_query($con,$sql);
@@ -85,8 +87,9 @@
 			$url = $row["url"];
 			$senha_email = $row["senha_email"];
 			$grupo = $row["grupos"];
+			$anexo = $row["anexo"];
 			// Aqui eu coloco os emails complementares em uma variável
-            $emailsComp = $row["emails_adicionais"]; // O nome é igual ao do campo, poruq eue usei o msqli_ FETCH ARRAY (ou seja, transforma em uma array associativo)
+            		$emailsComp = $row["emails_adicionais"]; // O nome é igual ao do campo, poruq eue usei o msqli_ FETCH ARRAY (ou seja, transforma em uma array associativo)
         }
 
         //PORÉM, o $emailsComp retorna uma STRING, logo, eu preciso separar essa String
@@ -221,6 +224,13 @@
 					$mail->Subject = $assunto;
 					$mail->MsgHTML($emailCompleto);
 					$mail->AddAddress($arrEmail[$i], "");
+					$anexos = explode(",",$anexo);
+					if ( count($anexos) > 0){
+						for ($ilocal = 0; $ilocal < count($anexos); $ilocal++) {
+							$mail->AddAttachment( DEST_DIR ."/" . $anexos[$ilocal]);
+							//echo DEST_DIR ."/" . $anexos[$i];
+						}
+					}
 
 					//echo $envio.$senha_email;
 
