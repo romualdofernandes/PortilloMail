@@ -31,7 +31,7 @@
 <div class="wrap confirma">
 	<h1>Enviar Email <b><?php echo $id; ?></b></h1>
 	<div class="emails">
-	<form name="formulario" action="confirma.php" method="POST" id="emails"  onsubmit="return validarCampos()">
+	<form name="formulario" action="confirma.php" method="POST" id="emails"  onsubmit="return validarCampos()" enctype="multipart/form-data">
 		<div class="enviarEmail">
 			<div class="crud">
 			<?php if(isset($_REQUEST["id_mail"])):?>
@@ -71,6 +71,7 @@
 				<input id="emails_adicionais" name="emails_adicionais" class="emails" placeholder="Insira Emails Adicionais (separado por ',')" value="<?php echo $dadosMensagem['emails_adicionais']?>"/>
 				<input id="assunto" type="text" name="assunto" placeholder="Digite o Assunto do Email" value="<?php echo $dadosMensagem['assunto']?>"/>
 				<div class="botoes">
+					Anexos:<input type="file" name="anexos[]" multiple>
 					<button onclick="enviar()">Enviar</button>
 					<!--<button type="reset">Limpar Tudo</button>-->
 				</div>
@@ -85,6 +86,7 @@
 				<input id="assunto" type="text" name="assunto" placeholder="Digite o Assunto do Email"/>
 				
 				<div class="botoes">
+					Anexos:<input type="file" name="anexos[]" multiple>
 					<button onclick="enviar()">Enviar</button>
 					<!--<button type="reset">Limpar Tudo</button>-->
 				</div>
