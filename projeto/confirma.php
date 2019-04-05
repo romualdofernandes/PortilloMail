@@ -9,6 +9,41 @@
 	$emails_adicionais = $_REQUEST['emails_adicionais'];
 	$assunto = $_REQUEST['assunto'];
 	$mensagem = $_REQUEST['mensagem'];
+
+
+	// diretório de destino do arquivo
+	$better_token = md5(uniqid(rand(), true));
+	mkdir(__DIR__.'/anexos/'.$better_token .'/', 0777, true);
+	define('DEST_DIR', __DIR__ .'/anexos/'.$better_token);
+	if (isset($_FILES['anexos']) && !empty($_FILES['anexos']['name']))
+	{
+		// se o "name" estiver vazio, é porque nenhum arquivo foi enviado
+		// cria uma variável para facilitar
+		$arquivos = $_FILES['anexos'];
+		// total de arquivos enviados
+		$total = count($arquivos['name']);
+		$lista=[];
+	    	for ($i = 0; $i < $total; $i++)
+		{
+	        	// podemos acessar os dados de cada arquivo desta forma:
+		        // - $arquivos['name'][$i]
+		        // - $arquivos['tmp_name'][$i]
+		        // - $arquivos['size'][$i]
+		        // - $arquivos['error'][$i]
+		        // - $arquivos['type'][$i]
+			$lista[] = $better_token ."/" .$arquivos['name'][$i];
+		        if (!move_uploaded_file($arquivos['tmp_name'][$i], DEST_DIR . '/' . $arquivos['name'][$i]))
+        		{
+		            $meulog = "Erro ao enviar o arquivo: " . $arquivos['name'][$i];
+		        }
+		}
+    		$meulog = "Arquivos enviados com sucesso";
+	}
+
+	//if (isset($_FILE['anexo'])) {
+	//	$anexo = $_FILE['anexo'];
+	//}else {$anexo="";}
+
 	$slug = criarSlug($assunto);
 	if($grupo == "todos"){
 		$grupo = 0;
@@ -32,7 +67,8 @@
 		$rs = mysqli_query($con,$sql);
 	}else{
 		//Gravar Dados
-		$sql = "INSERT INTO mensagens VALUES(DEFAULT,'$grupo','$emails_adicionais','" . str_replace("'","", $mensagem) . "','$assunto','$email_envio',0,DEFAULT,DEFAULT,DEFAULT,'Preparando Para Envio','')";
+		$anexos = implode(",",$lista);
+		$sql = "INSERT INTO mensagens VALUES(DEFAULT,'$grupo','$emails_adicionais','" . str_replace("'","", $mensagem) . "','$assunto','$email_envio',0,DEFAULT,DEFAULT,DEFAULT,'Preparando Para Envio','','$anexos')";
 		$rs = mysqli_query($con,$sql);
 		$id = mysqli_insert_id($con);
 	}
@@ -140,6 +176,7 @@
 			<p><b>Para Categoria: </b><?php echo $nomeGrupo ?></p>
 			<p><b>Outros Destinatários: </b><?php echo $emails_adicionais ?></p>
 			<p><b>Assunto: </b><?php echo $assunto?></p>
+			<p><b>Anexo: </b><?php echo $meulog ?></p>
 			<p><b>URL: </b><a href='<?php echo $url?>' target='_blank'><?php echo $url?></a></p>
 			<iframe class="conferir" width="700" src="<?php echo $url ?>" frameborder="0" scrolling="no" onload="javascript:resizeIframe(this);" id="iframe" onload='javascript:resizeIframe(this);'/>
 		</div>
